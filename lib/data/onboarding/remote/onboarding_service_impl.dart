@@ -55,6 +55,10 @@ class OnBoardingServiceImpl extends OnBoardingService {
     var url = "${baseUrl}getCategory";
     Map<String, String> headers = {
       'Content-Type': 'application/json',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Credentials": "true", // Required for cookies, authorization headers with HTTPS
+      "Access-Control-Allow-Headers": "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale",
+      "Access-Control-Allow-Methods": "POST, OPTIONS"
     };
 
     Map<String, dynamic> body = {
@@ -66,6 +70,7 @@ class OnBoardingServiceImpl extends OnBoardingService {
       response = await http
           .post(Uri.parse(url), headers: headers, body: jsonEncode(body))
           .timeout(requestDuration);
+      print(response.body);
       var jsonResponse = jsonDecode(response.body);
       if (response.statusCode >= 300 && response.statusCode <= 520) {
         throw jsonResponse;
@@ -76,7 +81,6 @@ class OnBoardingServiceImpl extends OnBoardingService {
         return GetCategoriesResponse.fromJson(jsonResponse);
       }
     } catch (error) {
-      print("error$error");
       if (error is Exception) {
         throw handleRequestError(error);
       } else {

@@ -33,6 +33,7 @@ class _HomePageState extends State<HomePage> {
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   String? deviceId;
   Timer? timer;
+  final GlobalKey<ScaffoldState> _scaffoldKey =  GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -82,6 +83,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         backgroundColor: kPrimaryLightBlue,
         automaticallyImplyLeading: false,
@@ -162,6 +164,17 @@ class _HomePageState extends State<HomePage> {
                 getCategories.add(element);
               });
             });
+          }
+          if (state is StringSuccess) {
+            setState(() {
+              isLoading = false;
+            });
+            showInSnackBar(state.response);
+            // Scaffold.of(context).showSnackBar(
+            //   SnackBar(
+            //     content: Text(state.response),
+            //   ),
+            // );
           }
           if (state is ErrorResponseSuccess) {
             setState(() {
@@ -261,5 +274,8 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+  void showInSnackBar(String value) {
+    _scaffoldKey.currentState!.showSnackBar( SnackBar(content:  Text(value)));
   }
 }

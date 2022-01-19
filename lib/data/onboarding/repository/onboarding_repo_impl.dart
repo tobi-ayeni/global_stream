@@ -40,7 +40,6 @@ class OnBoardingRepoImpl extends OnBoardingRepo {
       if(e is String){
         throw StringResponse(e);
       }else{
-        print(e);
         rethrow;
       }
     }

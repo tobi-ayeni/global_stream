@@ -40,8 +40,8 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
         var result = await repository.getCategory();
         emit(GetCategoriesSuccess(result));
       } catch (e, stack) {
-        if (e is String) {
-          emit(StringSuccess(e));
+        if (e is StringResponse) {
+          emit(StringSuccess(e.message));
         } else {
           emit(ErrorResponseSuccess(e as ErrorResponse));
         }
