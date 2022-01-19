@@ -1,10 +1,14 @@
 import 'dart:async';
+import 'dart:html' hide Platform;
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_zoom_sdk/flutter_zoom_web.dart';
+import 'package:flutter_zoom_sdk/zoom_view.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_zoom_sdk/zoom_options.dart';
-import 'package:flutter_zoom_sdk/zoom_view.dart';
 import 'package:global_stream/blocs/onboarding/onboarding_bloc.dart';
 import 'package:global_stream/data/onboarding/local/category_response.dart';
 import 'package:global_stream/data/onboarding/local/matches_response.dart';
@@ -128,7 +132,17 @@ class _SubCategoryState extends State<SubCategory> {
                                 meetingPassword = e.meetingPassword;
                               });
                               print("tapped");
-                              joinMeeting(context);
+
+                              joinMeetingWeb(context);
+
+                              // if(Platform.isIOS || Platform.isAndroid){
+                              //   print("hersse");
+                              //   joinMeeting(context);
+                              // }else{
+                              //   print("here");
+                              //   joinMeetingWeb(context);
+                              // }
+
                             },
                             child: Container(
                               margin: const EdgeInsets.symmetric(
@@ -323,4 +337,108 @@ class _SubCategoryState extends State<SubCategory> {
       }
     }
   }
+
+  joinMeetingWeb(BuildContext context) {
+    print("here2");
+    if (meetingId!.isNotEmpty &&
+        meetingPassword!.isNotEmpty) {
+      ZoomOptions zoomOptions = ZoomOptions(
+          domain: "zoom.us",
+          appKey: apiKey, //API KEY FROM ZOOM - Jwt API Key
+          appSecret:
+          apiSecret, //API SECRET FROM ZOOM - Jwt API Secret
+          language: "en-US", // Optional - For Web
+          showMeetingHeader: true, // Optional - For Web
+          disableInvite: false, // Optional - For Web
+          disableCallOut: false, // Optional - For Web
+          disableRecord: false, // Optional - For Web
+          disableJoinAudio: false, // Optional - For Web
+          audioPanelAlwaysOpen: false, // Optional - For Web
+          isSupportAV: true, // Optional - For Web
+          isSupportChat: true, // Optional - For Web
+          isSupportQA: true, // Optional - For Web
+          isSupportCC: true, // Optional - For Web
+          isSupportPolling: true, // Optional - For Web
+          isSupportBreakout: true, // Optional - For Web
+          screenShare: true, // Optional - For Web
+          rwcBackup: '', // Optional - For Web
+          videoDrag: true, // Optional - For Web
+          sharingMode: 'both', // Optional - For Web
+          videoHeader: true, // Optional - For Web
+          isLockBottom: true, // Optional - For Web
+          isSupportNonverbal: true, // Optional - For Web
+          isShowJoiningErrorDialog: true, // Optional - For Web
+          disablePreview: false, // Optional - For Web
+          disableCORP: true, // Optional - For Web
+          inviteUrlFormat: '', // Optional - For Web
+          disableVOIP: false, // Optional - For Web
+          disableReport: false, // Optional - For Web
+          meetingInfo: const [
+            // Optional - For Web
+            'topic',
+            'host',
+            'mn',
+            'pwd',
+            'telPwd',
+            'invite',
+            'participant',
+            'dc',
+            'enctype',
+            'report'
+          ]);
+      var meetingOptions = ZoomMeetingOptions(
+        userId:
+        'EvilRAT Technologies', //pass username for join meeting only --- Any name eg:- EVILRATT.
+        meetingId:
+        meetingId, //pass meeting id for join meeting only
+        meetingPassword: meetingPassword, //pass meeting password for join meeting only
+      );
+
+      var zoom = ZoomViewWeb();
+      zoom.initZoom(zoomOptions).then((results) {
+        print("here1");
+        if (results[0] == 0) {
+          print("here3");
+          var zr = window.document.getElementById("zmmtg-root");
+          querySelector('body')?.append(zr!);
+          zoom.onMeetingStatus().listen((status) {
+            print("[Meeting Status Stream] : " + status[0] + " - " + status[1]);
+          });
+          final signature = zoom.generateSignature(
+              zoomOptions.appKey.toString(),
+              zoomOptions.appSecret.toString(),
+              meetingId!,
+              0);
+          meetingOptions.jwtAPIKey = zoomOptions.appKey.toString();
+          meetingOptions.jwtSignature = signature;
+          zoom.joinMeeting(meetingOptions).then((joinMeetingResult) {
+            print("here5");
+            print("[Meeting Status Polling] : " + joinMeetingResult.toString());
+            timer = Timer.periodic(new Duration(seconds: 2), (timer) {
+              zoom.meetingStatus(meetingOptions.meetingId!).then((status) {
+                print("[Meeting Status Polling] : " +
+                    status[0] +
+                    " - " +
+                    status[1]);
+              });
+            });
+          });
+        }
+      }).catchError((error) {
+        print("[Error Generated] : " + error);
+      });
+    } else {
+      if (meetingId!.isEmpty) {
+        print("here7");
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Enter a valid meeting id to continue."),
+        ));
+      } else if (meetingPassword!.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Enter a meeting password to start."),
+        ));
+      }
+    }
+  }
+
 }

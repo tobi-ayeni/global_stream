@@ -53,13 +53,13 @@ class OnBoardingServiceImpl extends OnBoardingService {
   @override
   Future<GetCategoriesResponse> getCategory(String userId) async {
     var url = "${baseUrl}getCategory";
-    Map<String, String> headers = {
-      'Content-Type': 'application/json',
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Credentials": "true", // Required for cookies, authorization headers with HTTPS
-      "Access-Control-Allow-Headers": "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale",
-      "Access-Control-Allow-Methods": "POST, OPTIONS"
-    };
+    // Map<String, String> headers = {
+    //   'Content-Type': 'application/json',
+    //   "Access-Control-Allow-Origin": "*",
+    //   "Access-Control-Allow-Credentials": "true",
+    //   "Access-Control-Allow-Headers": "Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale",
+    //   "Access-Control-Allow-Methods": "POST, OPTIONS"
+    // };
 
     Map<String, dynamic> body = {
       'user_id': userId,
@@ -68,7 +68,7 @@ class OnBoardingServiceImpl extends OnBoardingService {
 
     try {
       response = await http
-          .post(Uri.parse(url), headers: headers, body: jsonEncode(body))
+          .post(Uri.parse(url), body: jsonEncode(body))
           .timeout(requestDuration);
       print(response.body);
       var jsonResponse = jsonDecode(response.body);
@@ -92,15 +92,15 @@ class OnBoardingServiceImpl extends OnBoardingService {
   @override
   Future<GetMatchesResponse> getMatches(String categoryId, String id) async {
     var url = "${baseUrl}getMatches";
-    Map<String, String> headers = {
-      'Content-Type': 'application/json',
-    };
+    // Map<String, String> headers = {
+    //   'Content-Type': 'application/json',
+    // };
 
     Map<String, dynamic> body = {'category': categoryId, 'user_id': id};
 
     try {
       response = await http
-          .post(Uri.parse(url), headers: headers, body: jsonEncode(body))
+          .post(Uri.parse(url),  body: jsonEncode(body))
           .timeout(requestDuration);
       var jsonResponse = jsonDecode(response.body);
       if (response.statusCode >= 300 && response.statusCode <= 520) {
@@ -124,15 +124,15 @@ class OnBoardingServiceImpl extends OnBoardingService {
   @override
   Future<CheckLogInResponse> checkLogin(String deviceId, String id) async {
     var url = "${baseUrl}check_login";
-    Map<String, String> headers = {
-      'Content-Type': 'application/json',
-    };
+    // Map<String, String> headers = {
+    //   'Content-Type': 'application/json',
+    // };
 
     Map<String, dynamic> body = {'device_id': deviceId, 'user_id': id};
 
     try {
       response = await http
-          .post(Uri.parse(url), headers: headers, body: jsonEncode(body))
+          .post(Uri.parse(url), body: jsonEncode(body))
           .timeout(requestDuration);
       var jsonResponse = jsonDecode(response.body);
       if (response.statusCode >= 300 && response.statusCode <= 520) {
